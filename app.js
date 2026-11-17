@@ -495,12 +495,6 @@ function toggleFullPage() {
     const panel = document.getElementById('viewerPanel');
     isFullPage = !isFullPage;
     panel.classList.toggle('viewer-fullpage', isFullPage);
-    const btn = document.getElementById('fullPageBtn');
-    btn.textContent = isFullPage ? '\u2716 Exit Full Page' : '\u26F6 Full Page';
-    // Auto-collapse metadata in full page mode
-    if (isFullPage) {
-        document.getElementById('viewerMeta').classList.add('collapsed');
-    }
 }
 
 // ---- Viewer Meta Toggle ----

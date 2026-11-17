@@ -66,8 +66,6 @@ function closeViewer() {
     if (typeof isFullPage !== 'undefined' && isFullPage) {
         isFullPage = false;
         panel.classList.remove('viewer-fullpage');
-        const fpBtn = document.getElementById('fullPageBtn');
-        if (fpBtn) fpBtn.textContent = '\u26F6 Full Page';
     }
 
     // Deactivate mobile overlay
@@ -110,6 +108,7 @@ function renderVideoViewer(area, meta) {
         area.innerHTML = '<iframe src="' + meta.embedUrl + '" allowfullscreen></iframe>';
         return;
     }
+    area.innerHTML = '';
     const video = document.createElement('video');
     video.controls = true;
     video.autoplay = false;
@@ -118,13 +117,18 @@ function renderVideoViewer(area, meta) {
     const mp4 = files.find(f => f.name.toLowerCase().endsWith('.mp4'));
     const primary = mp4 || files[0];
     video.src = primary.url;
-    // Add file selector if multiple formats
-    area.innerHTML = '';
     area.appendChild(video);
+    // Add quality dropdown if multiple formats
     if (files.length > 1) {
-        const selector = createFileSelector(files, (file) => {
+        const selector = createQualityDropdown(files, primary, (file) => {
+            const currentTime = video.currentTime;
+            const wasPlaying = !video.paused;
             video.src = file.url;
             video.load();
+            video.addEventListener('loadedmetadata', () => {
+                video.currentTime = currentTime;
+                if (wasPlaying) video.play();
+            }, { once: true });
         });
         area.appendChild(selector);
     }
@@ -184,32 +188,11 @@ function renderImageViewer(area, meta) {
 // ---- Text/Book Viewer ----
 function renderTextViewer(area, meta) {
     area.innerHTML = '';
-    // Default to 1up mode (single page, fits width better)
     const iframe = document.createElement('iframe');
     iframe.src = meta.embedUrl;
     iframe.allowFullscreen = true;
     iframe.id = 'bookReaderFrame';
     area.appendChild(iframe);
-
-    // Add view mode controls overlay
-    const controls = document.createElement('div');
-    controls.className = 'book-view-controls';
-    controls.innerHTML = '<button class="btn btn-small book-view-btn active" data-mode="1up" title="Single page (fit width)">1 Page</button>'
-        + '<button class="btn btn-small book-view-btn" data-mode="2up" title="Two page spread">2 Page</button>'
-        + '<button class="btn btn-small book-view-btn" data-mode="thumb" title="Thumbnail grid">Grid</button>';
-    controls.querySelectorAll('.book-view-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            controls.querySelectorAll('.book-view-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            // Reload iframe with the selected mode
-            const mode = btn.dataset.mode;
-            iframe.src = meta.embedUrl + '?brmode=' + mode;
-        });
-    });
-    area.appendChild(controls);
-
-    // Trigger 1up mode by default for better fit-width
-    iframe.src = meta.embedUrl + '?brmode=1up';
 }
 
 // ---- Software Viewer ----
@@ -266,7 +249,7 @@ function renderFallbackViewer(area, meta) {
 
 // ---- Helpers ----
 
-// Create a file format selector dropdown
+// Create a file format selector with buttons (for small file lists)
 function createFileSelector(files, onSelect) {
     const wrap = document.createElement('div');
     wrap.className = 'file-selector';
@@ -287,6 +270,32 @@ function createFileSelector(files, onSelect) {
         });
         wrap.appendChild(btn);
     });
+    return wrap;
+}
+
+// Create a compact quality dropdown (for video with many formats)
+function createQualityDropdown(files, selected, onSelect) {
+    const wrap = document.createElement('div');
+    wrap.className = 'quality-dropdown';
+    const label = document.createElement('span');
+    label.className = 'file-selector-label';
+    label.textContent = 'Quality:';
+    wrap.appendChild(label);
+    const select = document.createElement('select');
+    select.className = 'quality-select';
+    files.forEach((f, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        const ext = f.name.substring(f.name.lastIndexOf('.') + 1).toUpperCase();
+        const size = formatFileSize(f.size);
+        opt.textContent = ext + (size ? ' (' + size + ')' : '');
+        if (f === selected) opt.selected = true;
+        select.appendChild(opt);
+    });
+    select.addEventListener('change', () => {
+        onSelect(files[parseInt(select.value)]);
+    });
+    wrap.appendChild(select);
     return wrap;
 }
 

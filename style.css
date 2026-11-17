@@ -412,7 +412,7 @@ body {
 }
 
 .viewer-area video {
-    max-width: 100%;
+    width: 100%;
     max-height: 100%;
     background: #000;
 }
@@ -548,6 +548,12 @@ body {
     height: 100%;
 }
 
+/* Hide header and metadata in full page -- only the viewer area remains */
+.viewer-fullpage .viewer-header,
+.viewer-fullpage .viewer-meta {
+    display: none;
+}
+
 .viewer-fullpage .viewer-area {
     min-height: 0;
     flex: 1;
@@ -558,15 +564,34 @@ body {
     height: 100%;
 }
 
-/* In full page mode, auto-collapse metadata */
-.viewer-fullpage .viewer-meta-body {
-    max-height: 0;
-    padding: 0 16px;
-    overflow: hidden;
+/* Floating exit button -- visible only in full page mode */
+.fullpage-exit-btn {
+    display: none;
+    position: fixed;
+    top: 6px;
+    left: 6px;
+    z-index: 100;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 0.15s;
 }
 
-.viewer-fullpage .viewer-meta-collapse-btn {
-    transform: rotate(-90deg);
+.fullpage-exit-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.viewer-fullpage .fullpage-exit-btn {
+    display: inline-flex;
 }
 
 /* ---- Collections Bar ---- */
@@ -1086,6 +1111,37 @@ body {
     color: #000;
 }
 
+/* ---- Quality Dropdown (video) ---- */
+.quality-dropdown {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 4px 8px;
+    border-radius: var(--radius);
+    z-index: 5;
+}
+
+.quality-select {
+    background: var(--bg-panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px 8px;
+    font-size: 12px;
+    font-family: 'Outfit', sans-serif;
+    cursor: pointer;
+    outline: none;
+}
+
+.quality-select:hover,
+.quality-select:focus {
+    border-color: var(--accent);
+}
+
 /* ---- Audio Track List ---- */
 .audio-track-list {
     position: absolute;
@@ -1128,21 +1184,3 @@ body {
     flex-shrink: 0;
 }
 
-/* ---- Book View Controls ---- */
-.book-view-controls {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    display: flex;
-    gap: 4px;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 4px 6px;
-    border-radius: var(--radius);
-    z-index: 5;
-}
-
-.book-view-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #000;
-}
