@@ -48,42 +48,44 @@ async function spPing() {
     }
 }
 
+// Prompt user to sign into SafePlace
+function promptSafePlaceSignIn() {
+    showConfirmDialog(
+        'Sign in Required',
+        'Sign in to Safe Place first to sync your collections.',
+        () => window.open('https://dat5ngon.github.io/safe-place/', '_blank'),
+        'Open Safe Place'
+    );
+}
+
 // Export collections to Google Drive
 async function syncExportCollections() {
-    const syncStatus = document.getElementById('syncStatus');
-    syncStatus.textContent = 'Syncing...';
+    showToast('Syncing...');
     try {
         const authenticated = await spPing();
         if (!authenticated) {
-            showToast('Sign into SafePlace first to sync');
-            syncStatus.textContent = '';
+            promptSafePlaceSignIn();
             return;
         }
         const data = loadCollections();
         const res = await spRequest('save', { app: SP_APP_NAME, filename: SP_FILENAME, data });
         if (res.ok) {
             showToast('Collections backed up to Google Drive');
-            syncStatus.textContent = 'Synced';
-            setTimeout(() => { syncStatus.textContent = ''; }, 3000);
         } else {
             showToast('Backup failed');
-            syncStatus.textContent = '';
         }
     } catch {
         showToast('Sync failed -- check SafePlace connection');
-        syncStatus.textContent = '';
     }
 }
 
 // Import collections from Google Drive
 async function syncImportCollections() {
-    const syncStatus = document.getElementById('syncStatus');
-    syncStatus.textContent = 'Loading...';
+    showToast('Loading from Google Drive...');
     try {
         const authenticated = await spPing();
         if (!authenticated) {
-            showToast('Sign into SafePlace first to sync');
-            syncStatus.textContent = '';
+            promptSafePlaceSignIn();
             return;
         }
         const res = await spRequest('load', { app: SP_APP_NAME, filename: SP_FILENAME });
@@ -91,7 +93,6 @@ async function syncImportCollections() {
             const imported = Array.isArray(res.data) ? res.data : [];
             if (imported.length === 0) {
                 showToast('No collections found on Google Drive');
-                syncStatus.textContent = '';
                 return;
             }
             // Merge: add new collections, update existing by ID
@@ -116,13 +117,10 @@ async function syncImportCollections() {
             collections = current;
             renderCollections();
             showToast('Imported: ' + added + ' new, ' + updated + ' items merged');
-            syncStatus.textContent = '';
         } else {
             showToast('No backup found on Google Drive');
-            syncStatus.textContent = '';
         }
     } catch {
         showToast('Import failed -- check SafePlace connection');
-        syncStatus.textContent = '';
     }
 }

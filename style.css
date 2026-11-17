@@ -958,12 +958,6 @@ body {
     margin-top: 8px;
 }
 
-/* ---- Sync Status ---- */
-.sync-status {
-    font-size: 11px;
-    color: var(--text-muted);
-}
-
 /* ---- Hidden ---- */
 .hidden { display: none !important; }
 
