@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive Digger</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">&#x2756;</span>
+                <h1>Archive Digger</h1>
+            </div>
+            <p class="subtitle">Explore the Internet Archive</p>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search books, movies, software, images..." autocomplete="off">
+                <button id="searchBtn" class="btn btn-primary btn-small">Search</button>
+            </div>
+            <div class="media-tabs">
+                <button class="media-tab active" data-type="all">All</button>
+                <button class="media-tab" data-type="texts">Books</button>
+                <button class="media-tab" data-type="movies">Videos</button>
+                <button class="media-tab" data-type="image">Images</button>
+                <button class="media-tab" data-type="software">Software</button>
+                <button class="media-tab" data-type="audio">Audio</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Search Results (Left) -->
+            <section class="panel results-panel">
+                <div class="panel-header">
+                    <span id="resultCount" class="count"></span>
+                    <div class="sort-bar">
+                        <span class="sort-label">Sort:</span>
+                        <button class="sort-btn active" data-sort="downloads+desc">Popular</button>
+                        <button class="sort-btn" data-sort="date+desc">Newest</button>
+                        <button class="sort-btn" data-sort="titleSorter+asc">A-Z</button>
+                    </div>
+                </div>
+                <div id="searchResults" class="results-list">
+                    <div class="empty-state">
+                        <span class="empty-icon">&#x2756;</span>
+                        <p>Search the Internet Archive to discover books, videos, software, and more</p>
+                    </div>
+                </div>
+                <div id="loadingIndicator" class="loading hidden">
+                    <div class="spinner"></div>
+                    <p>Searching...</p>
+                </div>
+            </section>
+
+            <!-- Viewer Panel (Right) -->
+            <section class="panel viewer-panel" id="viewerPanel">
+                <div class="viewer-empty">
+                    <span class="viewer-empty-icon">&#x25C7;</span>
+                    <p>Select an item to view it here</p>
+                </div>
+                <div id="viewerContent" class="viewer-content hidden">
+                    <!-- Item header -->
+                    <div class="viewer-header">
+                        <button id="closeViewerBtn" class="btn btn-small">&#x2715; Close</button>
+                        <div class="viewer-actions">
+                            <button id="fullPageBtn" class="btn btn-small" title="Full page view">&#x26F6; Full Page</button>
+                            <button id="addToCollectionBtn" class="btn btn-small btn-primary">+ Save</button>
+                            <a id="openOnArchiveBtn" class="btn btn-small" href="#" target="_blank" rel="noopener noreferrer">&#x2197; Open on Archive</a>
+                        </div>
+                    </div>
+                    <!-- Viewer area -->
+                    <div id="viewerArea" class="viewer-area"></div>
+                    <!-- Item metadata (collapsible) -->
+                    <div class="viewer-meta" id="viewerMeta">
+                        <div class="viewer-meta-toggle" id="viewerMetaToggle">
+                            <h2 id="viewerTitle" class="viewer-title"></h2>
+                            <button class="viewer-meta-collapse-btn" id="metaCollapseBtn" title="Toggle details">&#x25BC;</button>
+                        </div>
+                        <div class="viewer-meta-body" id="viewerMetaBody">
+                            <p id="viewerCreator" class="viewer-creator"></p>
+                            <div id="viewerDetails" class="viewer-details"></div>
+                            <p id="viewerDescription" class="viewer-description"></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Collections Bar (Bottom) -->
+        <div class="collections-bar" id="collectionsBar">
+            <div class="collections-header" id="collectionsToggle">
+                <div class="collections-header-left">
+                    <span class="collections-icon">&#x2606;</span>
+                    <span>My Collections</span>
+                    <span id="collectionCount" class="count"></span>
+                </div>
+                <div class="collections-header-right">
+                    <div class="dropdown-wrap">
+                        <button id="importBtn" class="btn btn-small" title="Import">&#x2193; Import &#x25BE;</button>
+                        <div id="importDropdown" class="dropdown-menu hidden">
+                            <button class="dropdown-item" id="importFromDriveBtn">&#x2601; From Google Drive</button>
+                        </div>
+                    </div>
+                    <button id="exportBtn" class="btn btn-small" title="Export to Google Drive">&#x2191; Export</button>
+                    <button id="newCollectionBtn" class="btn btn-small">+ New</button>
+                    <span id="syncStatus" class="sync-status"></span>
+                    <button class="collections-expand-btn" id="collectionsExpandBtn">&#x25B2;</button>
+                </div>
+            </div>
+            <div class="collections-body hidden" id="collectionsBody">
+                <div id="collectionList" class="collection-list"></div>
+                <!-- Collection Items View -->
+                <div id="collectionItems" class="collection-items hidden">
+                    <div class="collection-items-header">
+                        <button id="backToCollections" class="btn btn-small">&#x2039; Back</button>
+                        <h3 id="currentCollectionName" title="Click to rename"></h3>
+                        <div class="collection-items-actions">
+                            <button id="deleteCollectionBtn" class="btn btn-small btn-danger">Delete</button>
+                        </div>
+                    </div>
+                    <div id="collectionItemList" class="collection-item-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Collection Modal -->
+        <div id="collectionModal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Create New Collection</h3>
+                <input type="text" id="collectionNameInput" placeholder="Collection name..." maxlength="50">
+                <div class="modal-actions">
+                    <button id="cancelCollectionBtn" class="btn">Cancel</button>
+                    <button id="createCollectionBtn" class="btn btn-primary">Create</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add to Collection Modal -->
+        <div id="addToCollectionModal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Add to Collection</h3>
+                <div id="collectionSelectList" class="collection-select-list"></div>
+                <div class="modal-actions">
+                    <button id="cancelAddBtn" class="btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirm Dialog -->
+        <div id="confirmModal" class="modal hidden">
+            <div class="modal-content modal-confirm">
+                <h3 id="confirmTitle">Confirm</h3>
+                <p id="confirmMessage" class="confirm-message"></p>
+                <div class="modal-actions">
+                    <button id="confirmCancelBtn" class="btn">Cancel</button>
+                    <button id="confirmOkBtn" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <iframe id="safePlaceFrame" src="https://dat5ngon.github.io/safe-place/" style="display:none"></iframe>
+    <script src="archive.js"></script>
+    <script src="viewer.js"></script>
+    <script src="sync.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
