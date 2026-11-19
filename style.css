@@ -60,6 +60,16 @@ body {
     gap: 10px;
 }
 
+.credit {
+    align-self: flex-start;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    margin-left: -4px;
+    margin-top: 2px;
+}
+.credit:hover { color: rgba(255, 255, 255, 0.8); }
+
 .logo-icon {
     font-size: 28px;
     filter: grayscale(0.3);
